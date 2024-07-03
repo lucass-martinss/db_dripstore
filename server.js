@@ -6,38 +6,53 @@ const prisma = new PrismaClient();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: '*'
+}));
 
 app.post("/clients", async (req, res) => {
-
-  await prisma.user.create({
-    data: {
-      cpf: req.body.cpf,
-      email: req.body.email,
-      name: req.body.name,
-      telefone: req.body.telefone,
-      id: req.body.id,
-      address:{
-        create:{
-          street:req.body.address.street,
-          Neighborhood:req.body.address.Neighborhood,
-          City:req.body.address.City,
-          Zip:req.body.address.Zip,
-          Complement:req.body.address.Complement,
-        },  
-      },
-    },
-  });
   console.log(req)
+  if (req.body.address) {
+    await prisma.user.create({
+      
+      data: {
+        cpf: req.body.cpf,
+        email: req.body.email,
+        name: req.body.name,
+        telefone: req.body.telefone,
+        id: req.body.id,
+        address: {
+          create: {
+            street: req.body.address.street,
+            Neighborhood: req.body.address.Neighborhood,
+            City: req.body.address.City,
+            Zip: req.body.address.Zip,
+            Complement: req.body.address.Complement,
+          },
+        },
+      },
+    });
+  } else {
+    await prisma.user.create({
+      data: {
+        cpf: req.body.cpf,
+        email: req.body.email,
+        name: req.body.name,
+        telefone: req.body.telefone,
+        id: req.body.id,
+      },
+    });
+  }
 
   res.status(201).json("Deu  certo PVT!");
 });
 
 app.get("/clients", async (req, res) => {
+  console.log(req)
   let clients = [];
   if (req.query) {
     clients = await prisma.user.findMany({
-      include:{address:true},
+      include: { address: true },
       where: {
         id: req.query.id,
         name: req.query.name,
@@ -54,6 +69,7 @@ app.get("/clients", async (req, res) => {
 });
 
 app.put("/clients/:id", async (req, res) => {
+  console.log(req)
   await prisma.user.update({
     where: {
       id: req.params.id,
@@ -78,5 +94,5 @@ app.delete("/clients/:id", async (req, res) => {
 });
 
 app.listen({
-  port:process.env.PORT || 3333}); 
-
+  port: process.env.PORT || 3333,
+});
