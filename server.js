@@ -1,96 +1,34 @@
-import express from "express";
-import cors from "cors";
-import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+
+import express from "express";
+import produtosRoutes from "./Routes/produtosRoutes.js"
+import pedidosRoutes from "./Routes/pedidosRoutes.js"
+import categoriasRoutes from "./Routes/categoriasRoutes.js"
+import promocoesRoutes from "./Routes/promocoesRoutes.js"
+import usuariosRoutes from "./Routes/usuariosRoutes.js"
+import estoquesRoutes from "./Routes/estoquesRoutes.js"
+import cors from "cors"
+import bodyParser from "body-parser";
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 
 const app = express();
-app.use(express.json());
+const PORT = 3000;
+
 app.use(cors());
+app.use(bodyParser.json())
+app.use(express.json());
 
-app.post("/clients", async (req, res) => {
-  console.log(req)
-  if (req.body.address) {
-    await prisma.user.create({
-      
-      data: {
-        cpf: req.body.cpf,
-        email: req.body.email,
-        name: req.body.name,
-        telefone: req.body.telefone,
-        id: req.body.id,
-        address: {
-          create: {
-            street: req.body.address.street,
-            Neighborhood: req.body.address.Neighborhood,
-            City: req.body.address.City,
-            Zip: req.body.address.Zip,
-            Complement: req.body.address.Complement,
-          },
-        },
-      },
-    });
-  } else {
-    await prisma.user.create({
-      data: {
-        cpf: req.body.cpf,
-        email: req.body.email,
-        name: req.body.name,
-        telefone: req.body.telefone,
-        id: req.body.id,
-      },
-    });
-  }
+app.use("/produtos",produtosRoutes)
+app.use("/pedidos",pedidosRoutes)
+app.use("/categorias",categoriasRoutes)
+app.use("/promocoes",promocoesRoutes)
+app.use("/usuarios",usuariosRoutes)
+app.use("/estoques",estoquesRoutes)
 
-  res.status(201).json("Deu  certo PVT!");
-});
 
-app.get("/clients", async (req, res) => {
-  console.log(req)
-  let clients = [];
-  if (req.query) {
-    clients = await prisma.user.findMany({
-      include: { address: true },
-      where: {
-        id: req.query.id,
-        name: req.query.name,
-        telefone: req.query.telefone,
-        cpf: req.query.cpf,
-        email: req.query.email,
-      },
-    });
-    res.status(200).json(clients);
-  } else {
-    clients = await prisma.user.findMany();
-    res.status(200).json(clients);
-  }
-});
-
-app.put("/clients/:id", async (req, res) => {
-  console.log(req)
-  await prisma.user.update({
-    where: {
-      id: req.params.id,
-    },
-    data: {
-      cpf: req.body.cpf,
-      email: req.body.email,
-      name: req.body.name,
-      telefone: req.body.telefone,
-    },
-  });
-  res.status(201).json("Deu  certo PVT!");
-});
-
-app.delete("/clients/:id", async (req, res) => {
-  await prisma.user.delete({
-    where: {
-      id: req.params.id,
-    },
-  });
-  res.status(202).json(`Os registros do cliente:${req.body.name} foi deletado`);
-});
-
-app.listen({
-  port: process.env.PORT || 3333,
-});
+app.listen(PORT, () => {
+    console.log(`Aplicação rodando em http://localhost:${PORT}`)
+})

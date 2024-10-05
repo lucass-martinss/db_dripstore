@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,22 +7,85 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       String    @id @default(auto()) @map("_id") @db.ObjectId
-  email    String    @unique
-  name     String
-  telefone String
-  cpf      String
-  address  Address[]
+model Usuarios {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  email     String      @unique
+  nome      String
+  telefone  String
+  cpf       String      @unique
+  senha     String      @unique
+  enderecos Enderecos[]
+  pedidos   Pedidos[]   @relation("UsuarioPedidos")
 }
 
-model Address {
-  id           String @id @default(auto()) @map("_id") @db.ObjectId
-  street       String
-  Neighborhood String
-  City         String
-  Zip          String
-  Complement   String
-  user         User   @relation(fields: [userId], references: [id], onDelete:Cascade)
-  userId       String @db.ObjectId
+model Enderecos {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  rua         String
+  bairro      String
+  cidade      String
+  cep         String
+  complemento String
+  usuario     Usuarios @relation(fields: [usrId], references: [id], onDelete: Cascade)
+  usrId       String   @db.ObjectId
+}
+
+model Produtos {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  subtitulo    String
+  titulo       String
+  subtitulo2   String
+  preco        Float
+  estoque      Estoque?     @relation("ProdutoEstoque")
+  estoqueId    String?      @db.ObjectId
+  promocao     Promocoes?   @relation(fields: [promocaoId], references: [id])
+  promocaoId   String?      @db.ObjectId
+  categoria    Categorias   @relation(fields: [categoriaId], references: [id])
+  categoriaId  String       @db.ObjectId
+  itensPedidos PedidoItem[]
+  imagemPath   String       @default("default-image.jpg")
+}
+
+model Estoque {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  produto    Produtos @relation("ProdutoEstoque", fields: [produtoId], references: [id])
+  produtoId  String   @unique @db.ObjectId
+  quantidade Int
+}
+
+model Pedidos {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  vendedor       String
+  cliente        String
+  formapagamento String
+  valorpedido    Int
+  deleted        Boolean
+  itens          PedidoItem[] @relation("PedidoItens")
+  usuario        Usuarios?    @relation("UsuarioPedidos", fields: [usuarioId], references: [id])
+  usuarioId      String?      @db.ObjectId
+}
+
+model PedidoItem {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  pedidoId   String   @db.ObjectId
+  produto    Produtos @relation(fields: [produtoId], references: [id])
+  produtoId  String   @db.ObjectId
+  quantidade Int
+  pedido     Pedidos  @relation("PedidoItens", fields: [pedidoId], references: [id])
+}
+
+model Categorias {
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  nome     String
+  produtos Produtos[]
+  imagemPath  String      @default("default-image.jpg")
+
+}
+
+model Promocoes {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  data_feriado String
+  porcentagem  Int
+  status       String
+  nome         String
+  produtos     Produtos[]
 }
