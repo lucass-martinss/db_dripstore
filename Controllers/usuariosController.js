@@ -65,10 +65,12 @@ export const login = async (req, res) => {
             message: 'Usuário logado com sucesso', 
             token, 
             usuario: {
+                id: usuario.id,
                 email: usuario.email,
                 nome: usuario.nome,
                 telefone: usuario.telefone,
-                cpf: usuario.cpf
+                cpf: usuario.cpf,
+                enderecos: usuario.enderecos
         }});
     } catch (error) {
         console.error(error); // Log do erro no console do servidor

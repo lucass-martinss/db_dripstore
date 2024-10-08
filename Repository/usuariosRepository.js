@@ -9,7 +9,8 @@ export const getAll = async() => {
 
 export const getOne = async(id) => {
     return await prisma.usuarios.findUnique({
-        where: {id: parseInt(id)}
+        where: {id: parseInt(id)},
+        
     });
 }
 
@@ -20,14 +21,28 @@ export const deletar = async(id) => {
 }
 
 export const store = async(body) => {
-    const hashedsenha = await bcrypt.hash(body.senha,10)
-
-    body.senha = hashedsenha
-
+    const { nome, telefone, email, cpf, senha , enderecos } = body;
+    const hashedsenha = await bcrypt.hash(senha,10)
+ 
     return await prisma.usuarios.create({
-        data:body
-    });
-}
+        data: {
+            nome,
+            telefone,
+            email,
+            cpf,
+            senha: hashedsenha,
+            enderecos: {
+              create: enderecos.map((endereco) => ({
+                rua: endereco.rua,
+                bairro: endereco.bairro,
+                cidade: endereco.cidade,
+                cep: endereco.cep,
+                complemento: endereco.complemento,
+              })),
+            },
+          },
+        })
+    }
 
 export const update = async(id,body) => {
     return await prisma.usuarios.update({
@@ -38,9 +53,12 @@ export const update = async(id,body) => {
 
 export const login = async (email, senha) => {
     const usuario = await prisma.usuarios.findFirst({
-        where: { email: email }
+        where: { email: email },
+        include: {
+            enderecos: true,
+          },
     });
-    console.log(usuario)
+   
 
     if (!usuario) {
         throw new Error("Usuário não encontrado");

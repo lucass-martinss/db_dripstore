@@ -7,6 +7,7 @@ import categoriasRoutes from "./Routes/categoriasRoutes.js"
 import promocoesRoutes from "./Routes/promocoesRoutes.js"
 import usuariosRoutes from "./Routes/usuariosRoutes.js"
 import estoquesRoutes from "./Routes/estoquesRoutes.js"
+import enderecosRoutes from "./Routes/enderecosRoutes.js"
 import cors from "cors"
 import bodyParser from "body-parser";
 import dotenv from 'dotenv';
@@ -26,6 +27,7 @@ app.use("/pedidos",pedidosRoutes)
 app.use("/categorias",categoriasRoutes)
 app.use("/promocoes",promocoesRoutes)
 app.use("/usuarios",usuariosRoutes)
+app.use("/enderecos",enderecosRoutes)
 app.use("/estoques",estoquesRoutes)
 
 
