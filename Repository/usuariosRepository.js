@@ -3,6 +3,43 @@ import bcrypt from "bcrypt"
 
 const prisma = new PrismaClient();
 
+export const findOrCreateUser = async (profile) => {
+    const existingUser = await prisma.usuarios.findUnique({
+      where: {
+        OR: [
+          { googleId: profile.googleId },
+          { facebookId: profile.facebookId },
+          { email: profile.email },
+        ],
+      },
+    });
+  
+    if (existingUser) {
+      return existingUser; // Se o usuário já existe, retorna ele
+    }
+  
+    // Cria o usuário se não existir
+    return await prisma.usuarios.create({
+      data: {
+        nome: profile.nome,               // Nome do Google ou Facebook
+        email: profile.email,             // Email do Google ou Facebook
+        googleId: profile.googleId || null, // Google ID (se for do Google)
+        telefone: "",
+        senha: "", // Senha pode ser null, pois autenticação OAuth não exige senha
+        cpf: "",
+        enderecos: {
+            create:{
+              rua: "",
+              bairro: "",
+              cidade: "",
+              cep: "",
+              complemento: "",
+            },
+        },
+      },
+    });
+  };
+
 export const getAll = async() => {
     return await prisma.usuarios.findMany();
 }
@@ -58,7 +95,7 @@ export const login = async (email, senha) => {
             enderecos: true,
           },
     });
-   
+   console.log(`usuario encontrado no repository: -- ${usuario}`)
 
     if (!usuario) {
         throw new Error("Usuário não encontrado");

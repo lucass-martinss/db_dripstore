@@ -11,12 +11,14 @@ model Usuarios {
   id        String      @id @default(auto()) @map("_id") @db.ObjectId
   email     String      @unique
   nome      String
-  telefone  String
-  cpf       String      @unique
-  senha     String      @unique
+  telefone  String?
+  cpf       String?      @unique
+  senha     String?      @unique
+  googleId  String?      
   enderecos Enderecos[]
   pedidos   Pedidos[]   @relation("UsuarioPedidos")
 }
+
 
 model Enderecos {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
